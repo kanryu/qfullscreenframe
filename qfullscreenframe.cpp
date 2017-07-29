@@ -31,7 +31,6 @@ QFullscreenFrame::QFullscreenFrame(QWidget* mainWindow, Qt::AnchorPoint anchor, 
 
 QFullscreenFrame::~QFullscreenFrame()
 {
-    m_topWidget->removeEventFilter(this);
 }
 
 bool QFullscreenFrame::eventFilter(QObject *watched, QEvent *event)
@@ -179,6 +178,7 @@ void QFullscreenFrame::closeEvent(QCloseEvent *event)
 {
 //    qDebug() << "QFullscreenFrame::closeEvent";
     m_timer.stop();
+    m_topWidget->removeEventFilter(this);
     m_valid = false;
     emit deinit();
 
