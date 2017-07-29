@@ -1,7 +1,7 @@
 #ifndef FULLSCREENTOPFRAME_H
 #define FULLSCREENTOPFRAME_H
 
-#include <QMainWindow>
+#include <QtWidgets>
 
 
 /**
@@ -52,6 +52,7 @@ public:
     void closeAndShowNormal();
     bool isValid() { return m_valid; }
 
+    bool eventFilter(QObject *watched, QEvent *event);
     void changeEvent(QEvent *event) override;
     void closeEvent(QCloseEvent *event) override;
 #ifdef Q_OS_WIN
@@ -97,6 +98,7 @@ public slots:
 
 private:
     QWidget* m_mainWindow;
+    QWidget* m_topWidget;
     Qt::AnchorPoint m_anchor;
     bool m_wasFullscreen;
     bool m_mouseleft;

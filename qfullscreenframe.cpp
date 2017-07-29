@@ -15,18 +15,33 @@ QFullscreenFrame::QFullscreenFrame(QWidget* mainWindow, Qt::AnchorPoint anchor, 
             closeWhenMouseIsOut();
     });
 
+    m_topWidget = mainWindow->topLevelWidget();
+    m_topWidget->installEventFilter(this);
+
     Qt::WindowFlags flags = windowFlags();
     flags |= Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint;
     setWindowFlags(flags);
     setWindowTitle(mainWindow->windowTitle());
 
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
-    QRect rectMain = mainWindow->geometry();
+//    QRect rectMain = mainWindow->geometry();
+    QRect rectMain = QRect(m_mainWindow->mapToGlobal(QPoint()), m_mainWindow->size());
     setGeometry(QRect(QPoint(rectMain.left(), rectMain.top()+20), QSize(rectMain.width()-100, minimumSize().height())));
 }
 
 QFullscreenFrame::~QFullscreenFrame()
 {
+    m_topWidget->removeEventFilter(this);
+}
+
+bool QFullscreenFrame::eventFilter(QObject *watched, QEvent *event)
+{
+//    qDebug() << watched << event;
+    if(m_topWidget == dynamic_cast<QWidget*>(watched)) {
+        if(event->type() == QEvent::Move || event->type() == QEvent::Close)
+            closeFrame();
+    }
+    return false;
 }
 
 void QFullscreenFrame::changeEvent(QEvent *event)
@@ -53,7 +68,8 @@ void QFullscreenFrame::changeEvent(QEvent *event)
 
                     // As QMainWindow::geometry() does not include size of the window frame,
                     // you need to set the position and size considering QWindow::frameMargines()
-                    QRect rectMain = m_mainWindow->geometry();
+//                    QRect rectMain = m_mainWindow->geometry();
+                    QRect rectMain = QRect(m_mainWindow->mapToGlobal(QPoint()), m_mainWindow->size());
                     QMargins margin = qwindow->frameMargins();
                     qwindow->setGeometry(QRect(QPoint(rectMain.left()+margin.left(), rectMain.top()+margin.top()),
                                                QSize(rectMain.width()-margin.left()-margin.right(), qwindow->height()-margin.top()-margin.bottom())));
@@ -100,7 +116,8 @@ void QFullscreenFrame::showWithoutTitleBar()
 
     initializeCount-=2;
     setMaximumHeight(size().height());
-    QRect rectMain = m_mainWindow->geometry();
+//    QRect rectMain = m_mainWindow->geometry();
+    QRect rectMain = QRect(m_mainWindow->mapToGlobal(QPoint()), m_mainWindow->size());
     switch(m_anchor) {
     case Qt::AnchorTop:
         setGeometry(QRect(rectMain.topLeft(),
