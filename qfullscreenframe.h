@@ -97,6 +97,8 @@ public slots:
     void closeWhenMouseIsOut();
 
 private:
+    QRect mainGeometry();
+
     QWidget* m_mainWindow;
     QWidget* m_topWidget;
     Qt::AnchorPoint m_anchor;

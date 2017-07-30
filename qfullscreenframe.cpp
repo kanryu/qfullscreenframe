@@ -17,6 +17,7 @@ QFullscreenFrame::QFullscreenFrame(QWidget* mainWindow, Qt::AnchorPoint anchor, 
 
     m_topWidget = mainWindow->topLevelWidget();
     m_topWidget->installEventFilter(this);
+//    m_topWidget->windowHandle()->installEventFilter(this);
 
     Qt::WindowFlags flags = windowFlags();
     flags |= Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint;
@@ -24,8 +25,7 @@ QFullscreenFrame::QFullscreenFrame(QWidget* mainWindow, Qt::AnchorPoint anchor, 
     setWindowTitle(mainWindow->windowTitle());
 
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
-//    QRect rectMain = mainWindow->geometry();
-    QRect rectMain = QRect(m_mainWindow->mapToGlobal(QPoint()), m_mainWindow->size());
+    QRect rectMain = mainGeometry();
     setGeometry(QRect(QPoint(rectMain.left(), rectMain.top()+20), QSize(rectMain.width()-100, minimumSize().height())));
 }
 
@@ -37,8 +37,11 @@ bool QFullscreenFrame::eventFilter(QObject *watched, QEvent *event)
 {
 //    qDebug() << watched << event;
     if(m_topWidget == dynamic_cast<QWidget*>(watched)) {
-        if(event->type() == QEvent::Move || event->type() == QEvent::Close)
+        switch(event->type()) {
+        case QEvent::Move:
+        case QEvent::Close:
             closeFrame();
+        }
     }
     return false;
 }
@@ -68,7 +71,7 @@ void QFullscreenFrame::changeEvent(QEvent *event)
                     // As QMainWindow::geometry() does not include size of the window frame,
                     // you need to set the position and size considering QWindow::frameMargines()
 //                    QRect rectMain = m_mainWindow->geometry();
-                    QRect rectMain = QRect(m_mainWindow->mapToGlobal(QPoint()), m_mainWindow->size());
+                    QRect rectMain = mainGeometry();
                     QMargins margin = qwindow->frameMargins();
                     qwindow->setGeometry(QRect(QPoint(rectMain.left()+margin.left(), rectMain.top()+margin.top()),
                                                QSize(rectMain.width()-margin.left()-margin.right(), qwindow->height()-margin.top()-margin.bottom())));
@@ -116,14 +119,14 @@ void QFullscreenFrame::showWithoutTitleBar()
     initializeCount-=2;
     setMaximumHeight(size().height());
 //    QRect rectMain = m_mainWindow->geometry();
-    QRect rectMain = QRect(m_mainWindow->mapToGlobal(QPoint()), m_mainWindow->size());
+    QRect rectMain = mainGeometry();
     switch(m_anchor) {
     case Qt::AnchorTop:
         setGeometry(QRect(rectMain.topLeft(),
                                    QSize(rectMain.width(), height())));
         break;
     case Qt::AnchorBottom:
-        setGeometry(QRect(QPoint(rectMain.left(), rectMain.bottom()-height()),
+        setGeometry(QRect(QPoint(rectMain.left(), rectMain.bottom()-height()+1),
                                    QSize(rectMain.width(), height())));
         break;
     case Qt::AnchorLeft:
@@ -131,7 +134,7 @@ void QFullscreenFrame::showWithoutTitleBar()
                                    QSize(width(), rectMain.height())));
         break;
     case Qt::AnchorRight:
-        setGeometry(QRect(QPoint(rectMain.left()-width(), rectMain.top()),
+        setGeometry(QRect(QPoint(rectMain.right()-width()+1, rectMain.top()),
                                    QSize(width(), rectMain.height())));
         break;
     }
@@ -150,28 +153,39 @@ void QFullscreenFrame::closeFrame()
 void QFullscreenFrame::closeWhenMouseIsOut()
 {
 //    qDebug() << "closeWhenMouseIsOut" << m_mainWindow->mapFromGlobal(cursor().pos()).y() << m_mainWindow->height() << height();
+    QPoint ptCursor = cursor().pos();
+    if(!mainGeometry().contains(ptCursor)) {
+        closeFrame();
+        return;
+    }
+    QPoint ptInMain = m_mainWindow->mapFromGlobal(ptCursor);
     switch(m_anchor) {
     case Qt::AnchorTop:
-        if(m_mainWindow->mapFromGlobal(cursor().pos()).y() > height()+30) {
+        if(ptInMain.y() > height()+30) {
             closeFrame();
         }
         break;
     case Qt::AnchorBottom:
-        if(m_mainWindow->mapFromGlobal(cursor().pos()).y() < m_mainWindow->height()-height()-30) {
+        if(ptInMain.y() < m_mainWindow->height()-height()-30) {
             closeFrame();
         }
         break;
     case Qt::AnchorLeft:
-        if(m_mainWindow->mapFromGlobal(cursor().pos()).x() > width()+30) {
+        if(ptInMain.x() > width()+30) {
             closeFrame();
         }
         break;
     case Qt::AnchorRight:
-        if(m_mainWindow->mapFromGlobal(cursor().pos()).x() < m_mainWindow->width()-width()-30) {
+        if(ptInMain.x() < m_mainWindow->width()-width()-30) {
             closeFrame();
         }
         break;
     }
+}
+
+QRect QFullscreenFrame::mainGeometry()
+{
+    return QRect(m_mainWindow->mapToGlobal(QPoint()), m_mainWindow->size());
 }
 
 void QFullscreenFrame::closeEvent(QCloseEvent *event)
@@ -179,6 +193,7 @@ void QFullscreenFrame::closeEvent(QCloseEvent *event)
 //    qDebug() << "QFullscreenFrame::closeEvent";
     m_timer.stop();
     m_topWidget->removeEventFilter(this);
+//    m_topWidget->windowHandle()->removeEventFilter(this);
     m_valid = false;
     emit deinit();
 
@@ -208,6 +223,10 @@ bool QFullscreenFrame::nativeEvent(const QByteArray &, void *message, long *resu
     }
     if(msg->message == WM_NCMOUSELEAVE && isMaximized()) {
         closeWhenMouseIsOut();
+    }
+    // the application focus is out
+    if(msg->message == WM_ACTIVATE && LOWORD(msg->wParam) == WA_INACTIVE) {
+        closeFrame();
     }
     // Prevent movement of the window by dragging the title bar of QFullscreenFrame
     if(isMaximized() && (msg->message == WM_NCLBUTTONDOWN || msg->message == WM_NCLBUTTONUP)) {
