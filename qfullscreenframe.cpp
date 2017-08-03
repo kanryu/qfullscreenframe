@@ -110,10 +110,13 @@ void QFullscreenFrame::showWithTitlebar()
 //    qDebug() << "showWithTitlebar";
 }
 
-void QFullscreenFrame::showWithoutTitleBar()
+void QFullscreenFrame::showWithoutTitleBar(bool topMost)
 {
     emit init();
-    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+    Qt::WindowFlags flags = Qt::FramelessWindowHint | Qt::SubWindow;
+    if(topMost) flags |= Qt::WindowStaysOnTopHint;
+    setWindowFlags(flags);
+
     showNormal();
 
     initializeCount-=2;
@@ -205,6 +208,7 @@ void QFullscreenFrame::closeEvent(QCloseEvent *event)
         emit exitApp();
     }
     QMainWindow::closeEvent(event);
+    emit closed();
 }
 
 #ifdef Q_OS_WIN

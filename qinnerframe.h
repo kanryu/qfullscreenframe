@@ -1,50 +1,18 @@
-#ifndef FULLSCREENTOPFRAME_H
-#define FULLSCREENTOPFRAME_H
+#ifndef QINNERFRAME_H
+#define QINNERFRAME_H
 
 #include <QtWidgets>
 
-
-/**
- * @brief The QFullscreenFrame class
- *
- * When displaying windows in full screen, you can display additional widgets
- * such as toolbars with overlapping coordinates without vibration of the main window.
- *
- * Frames can be displayed at the top or bottom of the screen.
- * It closes automatically when the mouse cursor leaves the frame.
- *
- * WindowSystem's own title bar can be displayed on the frame(call showMaximized()).
- * Minimize, return to normal, close buttons are replaced with appropriate actions, respectively.
- */
-class QFullscreenFrame : public QMainWindow
+class QInnerFrame : public QFrame
 {
     Q_OBJECT
 public:
-    /**
-     * @brief QFullscreenFrame
-     * @param mainWindow is a widget in the fullscreen display as a reference for displaying the frame. It can be stored in the task bar.
-     * @param anchor specifies where to fix the frame in the mainWindow
-     */
-    explicit QFullscreenFrame(QWidget* mainWindow, Qt::AnchorPoint anchor=Qt::AnchorTop,  QWidget *parent = 0);
-    ~QFullscreenFrame();
-
-    /**
-     * @brief showWithTitlebar
-     * Show the frame with the title bar of WindowManager
-     * Currently only Windows is implemented.
-     */
-    void showWithTitlebar();
+    QInnerFrame(QWidget* parent, Qt::AnchorPoint anchor=Qt::AnchorTop);
     /**
      * @brief showWithoutTitleBar
      * Show the frame without title bar
      */
-    void showWithoutTitleBar(bool topMost);
-    /**
-     * @brief closeFrame
-     * Close Frame without exiting the application.
-     * If you simply call close(), exitApp() will be emitted.
-     */
-    void closeFrame();
+    void showWithoutTitleBar();
     /**
      * @brief closeAndShowNormal
      * Method to be called to end fullscreen display with button etc arranged in frame
@@ -52,12 +20,8 @@ public:
     void closeAndShowNormal();
     bool isValid() { return m_valid; }
 
-    bool eventFilter(QObject *watched, QEvent *event);
-    void changeEvent(QEvent *event) override;
     void closeEvent(QCloseEvent *event) override;
-#ifdef Q_OS_WIN
-    bool nativeEvent(const QByteArray &, void *, long *) override;
-#endif
+    bool eventFilter(QObject *watched, QEvent *event);
 
 signals:
     /**
@@ -69,7 +33,7 @@ signals:
     /**
      * @brief deinit
      * Called before QFullscreenFrame closes.
-     * In order to collect the widgets passed to the frame, register SLOT in this SIGNAL.
+     * In order to collect the widgets passed to this frame, register SLOT in this SIGNAL.
      */
     void deinit();
     /**
@@ -116,4 +80,4 @@ private:
     QTimer m_timer;
 };
 
-#endif // FULLSCREENTOPFRAME_H
+#endif // QINNERFRAME_H
