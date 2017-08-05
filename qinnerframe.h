@@ -3,6 +3,15 @@
 
 #include <QtWidgets>
 
+/**
+ * @brief The QInnerFrame class
+ *
+ * A frame to display additional widgets overlay of main widget,
+ * which need not be the outermost.
+ *
+ * Frames can be displayed at the top, bottom, left, or right of the parent.
+ * It closes automatically when the mouse cursor leaves the frame.
+ */
 class QInnerFrame : public QFrame
 {
     Q_OBJECT
