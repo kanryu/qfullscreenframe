@@ -41,6 +41,9 @@ bool QFullscreenFrame::eventFilter(QObject *watched, QEvent *event)
         case QEvent::Move:
         case QEvent::Close:
             closeFrame();
+            break;
+        default:
+            break;
         }
     }
     return false;
