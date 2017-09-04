@@ -2,10 +2,11 @@
 
 QInnerFrame::QInnerFrame(QWidget *parent, Qt::AnchorPoint anchor)
     : QFrame(parent)
-    , m_anchor(anchor)
     , m_mainWindow(parent)
-    , m_valid(true)
+    , m_topWidget(nullptr)
+    , m_anchor(anchor)
     , m_toShowNormal(false)
+    , m_valid(true)
 {
     connect(&m_timer, &QTimer::timeout, this, [&]{
         if(!isMinimized())
@@ -34,6 +35,9 @@ bool QInnerFrame::eventFilter(QObject *watched, QEvent *event)
         switch(event->type()) {
         case QEvent::Resize:
             close();
+            break;
+        default:
+            break;
         }
     }
     return false;
@@ -62,6 +66,8 @@ void QInnerFrame::showWithoutTitleBar()
     case Qt::AnchorRight:
         setGeometry(QRect(QPoint(rectMain.right()-width()+1, rectMain.top()),
                                    QSize(width(), rectMain.height())));
+        break;
+    default:
         break;
     }
     closeWhenMouseIsOut();
@@ -116,6 +122,8 @@ void QInnerFrame::closeWhenMouseIsOut()
         if(ptInMain.x() < m_mainWindow->width()-width()-30) {
             close();
         }
+        break;
+    default:
         break;
     }
 }
