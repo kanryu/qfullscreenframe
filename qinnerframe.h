@@ -16,7 +16,7 @@ class QInnerFrame : public QFrame
 {
     Q_OBJECT
 public:
-    QInnerFrame(QWidget* parent, Qt::AnchorPoint anchor=Qt::AnchorTop);
+    QInnerFrame(QWidget* parent, Qt::AnchorPoint anchor=Qt::AnchorTop, int autoCloseSpace=30);
     /**
      * @brief showWithoutTitleBar
      * Show the frame without title bar
@@ -84,6 +84,7 @@ private:
     bool m_wasFullscreen;
     bool m_mouseleft;
     int initializeCount;
+	int m_autoCloseSpace;
     bool m_toShowNormal;
     bool m_valid;
     QTimer m_timer;

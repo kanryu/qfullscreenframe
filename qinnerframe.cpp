@@ -1,10 +1,11 @@
 #include "qinnerframe.h"
 
-QInnerFrame::QInnerFrame(QWidget *parent, Qt::AnchorPoint anchor)
+QInnerFrame::QInnerFrame(QWidget *parent, Qt::AnchorPoint anchor, int autoCloseSpace)
     : QFrame(parent)
     , m_mainWindow(parent)
     , m_topWidget(nullptr)
     , m_anchor(anchor)
+	, m_autoCloseSpace(autoCloseSpace)
     , m_toShowNormal(false)
     , m_valid(true)
 {
@@ -104,22 +105,22 @@ void QInnerFrame::closeWhenMouseIsOut()
     }
     switch(m_anchor) {
     case Qt::AnchorTop:
-        if(ptInMain.y() > height()+30) {
+        if(ptInMain.y() > height()+ m_autoCloseSpace) {
             close();
         }
         break;
     case Qt::AnchorBottom:
-        if(ptInMain.y() < m_mainWindow->height()-height()-30) {
+        if(ptInMain.y() < m_mainWindow->height()-height()- m_autoCloseSpace) {
             close();
         }
         break;
     case Qt::AnchorLeft:
-        if(ptInMain.x() > width()+30) {
+        if(ptInMain.x() > width()+ m_autoCloseSpace) {
             close();
         }
         break;
     case Qt::AnchorRight:
-        if(ptInMain.x() < m_mainWindow->width()-width()-30) {
+        if(ptInMain.x() < m_mainWindow->width()-width()- m_autoCloseSpace) {
             close();
         }
         break;
