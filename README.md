@@ -28,7 +28,10 @@ It closes automatically when the mouse cursor leaves the frame.
 
 These are a part of [QuickViewer](https://github.com/kanryu/quickviewer).
 
+For details, to see about https://github.com/kanryu/quickviewer/blob/master/QuickViewer/src/mainwindow.cpp
+
 ## License
+
 BSD-2
 
 Copyright (c) 2017, KATO Kanryu
