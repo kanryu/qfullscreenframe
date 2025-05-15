@@ -55,9 +55,9 @@ public:
     bool eventFilter(QObject *watched, QEvent *event);
     void changeEvent(QEvent *event) override;
     void closeEvent(QCloseEvent *event) override;
-#ifdef Q_OS_WIN
-    bool nativeEvent(const QByteArray &, void *, long *) override;
-#endif
+// #ifdef Q_OS_WIN
+//     bool nativeEvent(const QByteArray &, void *, long *) override;
+// #endif
 
 signals:
     /**
